@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+*.db
+*.db-wal
+*.db-shm
+models/versions/
+results_*.csv
+demo_upload.zip
+.DS_Store
+
+# CIFAR-100 pickles: 186 MB, and train alone exceeds GitHub's 100 MB file limit.
+# Recreate them with: python -m scripts.download_data
+data/train/train
+data/test/test
+data/meta

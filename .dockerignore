@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.git/
+.venv/
+notebook/
+results_*.csv
+*.zip
+models/versions/
+data/uploads/
+data/

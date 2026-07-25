@@ -1,0 +1,52 @@
+# Local stack. nginx load-balances across however many api replicas you scale to,
+# which is what makes the "latency vs number of containers" experiment possible.
+#
+#   docker compose up -d --build --scale api=1
+#   locust -f locustfile.py --host http://localhost:8080 --headless -u 100 -r 10 -t 60s --csv results_1
+#   docker compose up -d --scale api=3
+#   locust -f locustfile.py --host http://localhost:8080 --headless -u 100 -r 10 -t 60s --csv results_3
+#   docker compose up -d --scale api=5
+#   locust -f locustfile.py --host http://localhost:8080 --headless -u 100 -r 10 -t 60s --csv results_5
+
+services:
+  api:
+    build: .
+    command: uvicorn src.api:app --host 0.0.0.0 --port 8000 --workers 1
+    environment:
+      - LABEL_MODE=${LABEL_MODE:-coarse}
+      - DATA_DIR=/data
+      - DB_PATH=/data/mlops.db
+    volumes:
+      - shared-data:/data
+      - ./models:/app/models
+    expose:
+      - "8000"
+    # No fixed container_name and no host port: that is what lets --scale work.
+
+  lb:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  ui:
+    build: .
+    command: streamlit run app/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    environment:
+      - LABEL_MODE=${LABEL_MODE:-coarse}
+      - API_URL=http://lb:80
+      - DATA_DIR=/data
+      - DB_PATH=/data/mlops.db
+    volumes:
+      - shared-data:/data
+      - ./models:/app/models
+    ports:
+      - "8501:8501"
+    depends_on:
+      - lb
+
+volumes:
+  shared-data:

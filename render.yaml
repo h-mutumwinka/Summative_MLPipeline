@@ -1,0 +1,36 @@
+# Render blueprint: two services from one repo.
+# The API needs a persistent disk so uploaded images, the SQLite DB and retrained
+# models survive a restart. Render free-tier disks are not persistent; use Starter.
+services:
+  - type: web
+    name: cifar-mlops-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn src.api:app --host 0.0.0.0 --port $PORT
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: LABEL_MODE
+        value: coarse
+      - key: DATA_DIR
+        value: /data
+      - key: DB_PATH
+        value: /data/mlops.db
+      - key: MODELS_DIR
+        value: /data/models
+    disk:
+      name: cifar-data
+      mountPath: /data
+      sizeGB: 2
+
+  - type: web
+    name: cifar-mlops-ui
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: streamlit run app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0
+    plan: starter
+    envVars:
+      - key: LABEL_MODE
+        value: coarse
+      - key: API_URL
+        sync: false   # paste the API service's public URL here after the first deploy
