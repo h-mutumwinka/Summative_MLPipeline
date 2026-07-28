@@ -1,4 +1,4 @@
-#  One image, two roles. The compose file and Render both override CMD:
+# One image, two roles. The compose file and Render both override CMD:
 #   API : uvicorn src.api:app --host 0.0.0.0 --port 8000
 #   UI  : streamlit run app/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
 FROM python:3.11-slim
@@ -28,7 +28,7 @@ COPY locustfile.py .
 
 EXPOSE 8000 8501
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
+# Removing hardcoded Docker HEALTHCHECK because Render assigns dynamic ports.
+# Render will handle health checks natively using the /health route.
 
 CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
