@@ -1,9 +1,9 @@
-tensorflow-cpu==2.17.0
-numpy==1.26.4
-pillow==10.4.0
-pandas==2.2.2
-scikit-learn==1.5.1
-matplotlib==3.9.2
+tensorflow-cpu==2.21.0
+numpy==2.2.0
+pillow==11.2.1
+pandas==2.2.3
+scikit-learn==1.6.1
+matplotlib==3.10.3
 seaborn==0.13.2
 
 fastapi==0.115.0
@@ -12,6 +12,6 @@ python-multipart==0.0.9
 pydantic==2.9.2
 requests==2.32.3
 
-streamlit==1.38.0
+streamlit==1.45.0
 
 locust==2.31.5
