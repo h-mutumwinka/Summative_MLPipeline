@@ -23,13 +23,13 @@ COPY scripts/ ./scripts/
 COPY models/ ./models/
 COPY locustfile.py .
 
-# The CIFAR pickles are 186 MB and cannot live in git, so pull them at build time.
-RUN python -m scripts.download_data
+# We don't need to download the huge CIFAR pickles for production
+# because we now do retraining on uploaded images and inference uses the .keras model directly!
 
 EXPOSE 8000 8501
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
+# Removing hardcoded Docker HEALTHCHECK because Render assigns dynamic ports.
+# Render will handle health checks natively using the /health route.
 
 CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
